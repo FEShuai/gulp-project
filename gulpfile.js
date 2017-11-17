@@ -15,10 +15,10 @@ const templatesPath = './html';
 //静态资源输入、输出路径
 const path = {
   src: {
-    sass: staticPath + '/sass/**/*.scss',
-    js: staticPath + '/js/',
+    sass: staticPath + '/sass/*.scss',
+    js: staticPath + '/js/*.js',
     img: staticPath + '/images/**/*.*',
-    css: staticPath + '/css'
+    css: staticPath + '/css/*.css'
   },
   dist: {
     css: disPath + '/src/css/',
@@ -32,19 +32,18 @@ const option = {
   port: 1234,
   scp: {
     host: 'http://192.168.150.6',
-    username: 'wangshuai',
-    password: 'wangshuai',
+    username: 'test',
+    password: 'test',
     dest: '/usr/local/nginx/html/'
   }
 };
 
 //默认启动任务
 gulp.task('default', [''], function () {
-  // return runSequence(['server','miniJs']);
-  console.log('gulp启动成功');
+  console.log('gulp启动成功:' + '监听端口' + option.port);
 });
 
-//监测sass文件变化，变异sass --> css，刷新浏览器
+//监测sass文件变化，编译sass --> css，刷新浏览器
 gulp.task('sassToCss', function () {
   return sass('./src/sass/*.scss', {style: 'expand'})
     .on('error', sass.logError)
@@ -60,19 +59,15 @@ gulp.task('sassToCss', function () {
 
 //压缩CSS
 gulp.task('miniCss', function () {
-  return sass('./src/sass/*.scss', {style: expand})
+  return sass('./src/sass/*.scss', {style: 'expand'})
     .on('error', sass.logError)
     .pipe($.autoprefixer({browsers: ['last 2 versions']}))
     .pipe(gulp.dest(path.dist.css))
     .pipe(gulp.dest(path.dist.css))
     .pipe($.rename({suffix: '.min'}))
     .pipe($.cssnano())
-    // .pipe($.rev())
     .pipe(gulp.dest(path.src.css))
     .pipe(gulp.dest(path.dist.css))
-    // .pipe($.rev.manifest({
-    //     merge: true
-    // }))
     .pipe(gulp.dest('./src/rev/css'));
 });
 
@@ -83,7 +78,6 @@ gulp.task('cleanJs', function () {
 });
 
 function isFixed (file) {
-  // Has ESLint fixed the file contents?
   return file.eslint != null && file.eslint.fixed;
 }
 
@@ -129,13 +123,10 @@ gulp.task('miniJs', ['cleanJs'], function () {
 gulp.task('miniImage', function () {
   return gulp.src(path.src.img)
     .pipe($.imagemin())
-    // .pipe($.rev())
     .pipe(gulp.dest(path.dist.img));
-  // .pipe($.rev.manifest())
-  // .pipe(gulp.dest(path.src))
 });
 
-//
+// 移动src文件到dist
 gulp.task('copy', function () {
   gulp.src(['./*html/**/'])
     .pipe(gulp.dest('./dist/'));
